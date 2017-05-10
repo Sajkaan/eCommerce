@@ -19,6 +19,7 @@ import org.thymeleaf.context.Context;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.xml.transform.Result;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -69,7 +70,14 @@ public class CheckoutController {
 	}
 
 	@RequestMapping(path="/coupon", method = RequestMethod.POST)
-	String postCouponCode(Model model, @ModelAttribute(value="couponCode") CouponCode couponCode) {
+	String postCouponCode(Model model, @ModelAttribute(value="couponCode")  @Valid CouponCode couponCode,
+						  BindingResult result, RedirectAttributes redirectAttributes) {
+
+		if (result.hasErrors()){
+			// TODO: SG Add flash message
+			sCart.setCouponCode(null);
+			return "redirect:/checkout/coupon";
+		}
     	sCart.setCouponCode(couponCode);
    	
 		return "redirect:shipping";

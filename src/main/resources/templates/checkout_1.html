@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="utf-8"/>
         <meta http-equiv="x-ua-compatible" content="ie=edge"/>
@@ -33,7 +33,7 @@
 	            </div>
             </div>
             <div class="coupon-code">
-                <form id="couponForm" action="#" th:action="@{/checkout/coupon}" th:object="${couponCode}" method="post">
+                <form id="couponForm" th:action="@{/checkout/coupon}" th:object="${couponCode}" method="post">
                     <input type="text" th:field="*{code}" placeholder="Enter coupon code"/>
                 </form>
             </div>
