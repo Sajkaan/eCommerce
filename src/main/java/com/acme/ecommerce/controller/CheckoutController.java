@@ -1,5 +1,6 @@
 package com.acme.ecommerce.controller;
 
+import com.acme.ecommerce.FlashMessage;
 import com.acme.ecommerce.domain.*;
 import com.acme.ecommerce.service.PurchaseService;
 import org.slf4j.Logger;
@@ -75,11 +76,13 @@ public class CheckoutController {
 
 		if (result.hasErrors()){
 			// TODO: SG Add flash message
+			redirectAttributes.addFlashAttribute("flash",
+					new FlashMessage("Invalid coupon code. Must be between 5 and 10 characters!", FlashMessage.Status.FAILURE));
 			sCart.setCouponCode(null);
 			return "redirect:/checkout/coupon";
 		}
     	sCart.setCouponCode(couponCode);
-   	
+   		redirectAttributes.addFlashAttribute("flash", new FlashMessage("Coupon accepted.", FlashMessage.Status.SUCCESS));
 		return "redirect:shipping";
 	}
 	

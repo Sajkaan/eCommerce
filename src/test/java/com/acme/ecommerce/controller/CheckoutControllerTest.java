@@ -1,6 +1,7 @@
 package com.acme.ecommerce.controller;
 
 import com.acme.ecommerce.Application;
+import com.acme.ecommerce.FlashMessage;
 import com.acme.ecommerce.domain.*;
 import com.acme.ecommerce.service.ProductService;
 import com.acme.ecommerce.service.PurchaseService;
@@ -74,10 +75,10 @@ public class CheckoutControllerTest {
 
 	@Test
 	public void couponValidationTest() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.post("/coupon").param("couponCode", "dksadsadsa"))
-				.andDo(print())
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("error"));
+		mockMvc.perform(MockMvcRequestBuilders.post("/checkout/coupon").param("code", "four"))
+				.andExpect(redirectedUrl("/checkout/coupon"))
+				.andExpect(flash().attribute("flash",equalTo(
+						new FlashMessage("Invalid coupon code. Must be between 5 and 10 characters!", FlashMessage.Status.FAILURE))));
 	}
 
 	@Test

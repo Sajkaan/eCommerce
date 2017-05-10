@@ -63,6 +63,22 @@ nav .button {
 	}
 }
 
+.flash {
+    padding: 25px;
+}
+
+.success {
+    color: #468847;
+    background-color: #c4ded1;
+    border-color: #d6e9c6;
+}
+
+.failure {
+    color: #b94a48;
+    background-color: #f2dede;
+    border-color: #eed3d7;
+}
+
 
 
 /* ==========================================================================
