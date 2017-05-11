@@ -28,6 +28,8 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.acme.ecommerce.FlashMessage.Status.FAILURE;
+import static com.acme.ecommerce.FlashMessage.Status.SUCCESS;
 import static com.acme.ecommerce.controller.WebConstants.*;
 
 
@@ -77,12 +79,12 @@ public class CheckoutController {
 		if (result.hasErrors()){
 			// TODO: SG Add flash message
 			redirectAttributes.addFlashAttribute("flash",
-					new FlashMessage("Invalid coupon code. Must be between 5 and 10 characters!", FlashMessage.Status.FAILURE));
+					new FlashMessage("Invalid coupon code. Must be between 5 and 10 characters.", FAILURE));
 			sCart.setCouponCode(null);
 			return "redirect:/checkout/coupon";
 		}
     	sCart.setCouponCode(couponCode);
-   		redirectAttributes.addFlashAttribute("flash", new FlashMessage("Coupon accepted.", FlashMessage.Status.SUCCESS));
+   		redirectAttributes.addFlashAttribute("flash", new FlashMessage("Coupon accepted.", SUCCESS));
 		return "redirect:shipping";
 	}
 	

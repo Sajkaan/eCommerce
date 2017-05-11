@@ -23,9 +23,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.acme.ecommerce.FlashMessage.Status.FAILURE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -75,10 +77,10 @@ public class CheckoutControllerTest {
 
 	@Test
 	public void couponValidationTest() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.post("/checkout/coupon").param("code", "four"))
+		mockMvc.perform(post("/checkout/coupon").param("code", "four"))
 				.andExpect(redirectedUrl("/checkout/coupon"))
-				.andExpect(flash().attribute("flash",equalTo(
-						new FlashMessage("Invalid coupon code. Must be between 5 and 10 characters!", FlashMessage.Status.FAILURE))));
+				.andExpect(flash().attribute("flash",
+						new FlashMessage("Invalid coupon code. Must be between 5 and 10 characters.", FAILURE)));
 	}
 
 	@Test
@@ -91,7 +93,7 @@ public class CheckoutControllerTest {
 
 	@Test
 	public void postCouponTest() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.post("/checkout/coupon").param("couponCode", "abcd")).andDo(print())
+		mockMvc.perform(post("/checkout/coupon").param("couponCode", "abcd")).andDo(print())
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("shipping"));
 	}
@@ -138,7 +140,7 @@ public class CheckoutControllerTest {
 
 		when(purchaseService.save(purchase)).thenReturn(purchase);
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/checkout/shipping").param("firstName", "john")
+		mockMvc.perform(post("/checkout/shipping").param("firstName", "john")
 				.param("lastName", "smith").param("streetAddress", "123 main st.").param("city", "centerville")
 				.param("state", "WA").param("zipCode", "12345").param("country", "USA")
 				.param("phoneNumber", "1234567890").param("email", "ab@c.com")).andDo(print())
@@ -161,7 +163,7 @@ public class CheckoutControllerTest {
 
 		when(purchaseService.save(purchase)).thenReturn(purchase);
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/checkout/shipping")).andDo(print())
+		mockMvc.perform(post("/checkout/shipping")).andDo(print())
 				.andExpect(flash().attribute("org.springframework.validation.BindingResult.shippingAddress",
 						hasProperty("fieldErrorCount", equalTo(9))))
 				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("shipping"));
@@ -170,7 +172,7 @@ public class CheckoutControllerTest {
 	@Test
 	public void noCartPostShippingTest() throws Exception {
 		when(sCart.getPurchase()).thenReturn(null);
-		mockMvc.perform(MockMvcRequestBuilders.post("/checkout/shipping").param("firstName", "john")
+		mockMvc.perform(post("/checkout/shipping").param("firstName", "john")
 				.param("lastName", "smith").param("streetAddress", "123 main st.").param("city", "centerville")
 				.param("state", "WA").param("zipCode", "12345").param("country", "USA")
 				.param("phoneNumber", "1234567890").param("email", "ab@c.com")).andDo(print())
@@ -221,7 +223,7 @@ public class CheckoutControllerTest {
 
 		when(purchaseService.save(purchase)).thenReturn(purchase);
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/checkout/billing").param("firstName", "john")
+		mockMvc.perform(post("/checkout/billing").param("firstName", "john")
 				.param("lastName", "smith").param("streetAddress", "123 main st.").param("city", "centerville")
 				.param("state", "WA").param("zipCode", "12345").param("country", "USA")
 				.param("phoneNumber", "1234567890").param("email", "ab@c.com")
@@ -246,7 +248,7 @@ public class CheckoutControllerTest {
 		when(sCart.getCouponCode()).thenReturn(coupon);
 
 		when(purchaseService.save(purchase)).thenReturn(purchase);
-		mockMvc.perform(MockMvcRequestBuilders.post("/checkout/billing")).andDo(print())
+		mockMvc.perform(post("/checkout/billing")).andDo(print())
 				.andExpect(flash().attribute("org.springframework.validation.BindingResult.billingObject",
 						hasProperty("fieldErrorCount", equalTo(14))))
 				.andExpect(status().is3xxRedirection())
@@ -256,7 +258,7 @@ public class CheckoutControllerTest {
 	@Test
 	public void noCartPostBillingTest() throws Exception {
 		when(sCart.getPurchase()).thenReturn(null);
-		mockMvc.perform(MockMvcRequestBuilders.post("/checkout/billing").param("firstName", "john")
+		mockMvc.perform(post("/checkout/billing").param("firstName", "john")
 				.param("lastName", "smith").param("streetAddress", "123 main st.").param("city", "centerville")
 				.param("state", "WA").param("zipCode", "12345").param("country", "USA")
 				.param("phoneNumber", "1234567890").param("email", "ab@c.com")
