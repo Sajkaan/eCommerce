@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.FlashMap;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 
 import static com.acme.ecommerce.FlashMessage.Status.FAILURE;
+import static com.acme.ecommerce.FlashMessage.Status.SUCCESS;
 
 @Controller
 @RequestMapping("/cart")
@@ -76,7 +78,7 @@ public class CartController {
 		redirect.setExposeModelAttributes(false);
     	
     	Product addProduct = productService.findById(productId);
-    	productService.checkStock(addProduct, quantity);
+/*    	productService.checkStock(addProduct, quantity);*/
 		if (addProduct != null) {
 	    	logger.debug("Adding Product: " + addProduct.getId());
 	    	
@@ -88,8 +90,11 @@ public class CartController {
     			for (ProductPurchase pp : purchase.getProductPurchases()) {
     				if (pp.getProduct() != null) {
     					if (pp.getProduct().getId().equals(productId)) {
-    						pp.setQuantity(pp.getQuantity() + quantity);
-    						productAlreadyInCart = true;
+    						Product product = pp.getProduct();
+    						int numberOfItemInCart = pp.getQuantity() + quantity;
+    						productService.checkStock(product,numberOfItemInCart);
+    						pp.setQuantity(numberOfItemInCart);
+							productAlreadyInCart = true;
     						break;
     					}
     				}
@@ -151,7 +156,7 @@ public class CartController {
     }
     
     @RequestMapping(path="/remove", method = RequestMethod.POST)
-    public RedirectView removeFromCart(@ModelAttribute(value="productId") long productId) {
+    public RedirectView removeFromCart(@ModelAttribute(value="productId") long productId, RedirectAttributes redirectAttributes) {
     	logger.debug("Removing Product: " + productId);
 		RedirectView redirect = new RedirectView("/cart");
 		redirect.setExposeModelAttributes(false);
@@ -165,6 +170,8 @@ public class CartController {
     					if (pp.getProduct().getId().equals(productId)) {
     						purchase.getProductPurchases().remove(pp);
    							logger.debug("Removed " + updateProduct.getName());
+   							redirectAttributes.addFlashAttribute("flash",
+									new FlashMessage(String.format("%s removed.", updateProduct.getName()), SUCCESS));
     						break;
     					}
     				}
@@ -210,8 +217,7 @@ public class CartController {
 		FlashMap flashMap = RequestContextUtils.getOutputFlashMap(request);
 		flashMap.put("flash", new FlashMessage(ex.getMessage(), FAILURE));
 
-    	return "redirect:" + request.getHeader("referer");
-
+    	return "redirect:" + request.getHeader("Referer");
 	}
 
 }
