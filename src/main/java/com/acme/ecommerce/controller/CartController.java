@@ -1,9 +1,11 @@
 package com.acme.ecommerce.controller;
 
+import com.acme.ecommerce.FlashMessage;
 import com.acme.ecommerce.domain.Product;
 import com.acme.ecommerce.domain.ProductPurchase;
 import com.acme.ecommerce.domain.Purchase;
 import com.acme.ecommerce.domain.ShoppingCart;
+import com.acme.ecommerce.exceptions.OrderQuantityExceedsStockException;
 import com.acme.ecommerce.service.ProductService;
 import com.acme.ecommerce.service.PurchaseService;
 import org.slf4j.Logger;
@@ -12,13 +14,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.FlashMap;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+
+import static com.acme.ecommerce.FlashMessage.Status.FAILURE;
 
 @Controller
 @RequestMapping("/cart")
@@ -68,6 +76,7 @@ public class CartController {
 		redirect.setExposeModelAttributes(false);
     	
     	Product addProduct = productService.findById(productId);
+    	productService.checkStock(addProduct, quantity);
 		if (addProduct != null) {
 	    	logger.debug("Adding Product: " + addProduct.getId());
 	    	
@@ -110,6 +119,7 @@ public class CartController {
 		redirect.setExposeModelAttributes(false);
     	
     	Product updateProduct = productService.findById(productId);
+    	productService.checkStock(updateProduct, newQuantity);
     	if (updateProduct != null) {
     		Purchase purchase = sCart.getPurchase();
     		if (purchase == null) {
@@ -194,4 +204,14 @@ public class CartController {
 		
     	return redirect;
     }
+
+    @ExceptionHandler(OrderQuantityExceedsStockException.class)
+	public String exceedsStock(HttpServletRequest request, Exception ex) {
+		FlashMap flashMap = RequestContextUtils.getOutputFlashMap(request);
+		flashMap.put("flash", new FlashMessage(ex.getMessage(), FAILURE));
+
+    	return "redirect:" + request.getHeader("referer");
+
+	}
+
 }
