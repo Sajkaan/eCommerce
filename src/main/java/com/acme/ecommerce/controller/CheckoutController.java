@@ -83,8 +83,11 @@ public class CheckoutController {
 			sCart.setCouponCode(null);
 			return "redirect:/checkout/coupon";
 		}
-    	sCart.setCouponCode(couponCode);
-   		redirectAttributes.addFlashAttribute("flash", new FlashMessage("Coupon accepted.", SUCCESS));
+		/*if (!couponCode.getCode().equals("")) {*/
+			sCart.setCouponCode(couponCode);
+			redirectAttributes.addFlashAttribute("flash", new FlashMessage("Coupon accepted.", SUCCESS));
+	/*	}*/
+
 		return "redirect:shipping";
 	}
 	

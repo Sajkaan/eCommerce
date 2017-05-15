@@ -95,6 +95,7 @@ public class CartController {
     						int numberOfItemInCart = pp.getQuantity() + quantity;
     						productService.checkStock(product,numberOfItemInCart);
     						pp.setQuantity(numberOfItemInCart);
+    						productAlreadyInCart = true;
     						break;
     					}
     				}
