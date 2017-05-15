@@ -2,11 +2,13 @@ package com.acme.ecommerce.controller;
 
 import com.acme.ecommerce.domain.Product;
 import com.acme.ecommerce.domain.ProductPurchase;
+import com.acme.ecommerce.domain.ShoppingCart;
 import com.acme.ecommerce.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,8 +24,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import static com.acme.ecommerce.controller.CartController.addCartIcon;
+
 @Controller
 @RequestMapping("/product")
+@Scope("request")
 public class ProductController {
 	
 	final Logger logger = LoggerFactory.getLogger(ProductController.class);
@@ -33,6 +38,9 @@ public class ProductController {
 	
 	@Autowired
 	ProductService productService;
+
+	@Autowired
+	ShoppingCart sCart;
 	
 	@Autowired
 	HttpSession session;
@@ -49,6 +57,10 @@ public class ProductController {
 		// prevent exception), return initial size. Otherwise, return value of
 		// param. decreased by 1.
 		int evalPage = (page == null || page < 1) ? INITIAL_PAGE : page - 1;
+
+		if(sCart.getPurchase() != null) {
+			addCartIcon(model, sCart);
+		}
     	
     	Page<Product> products = productService.findAll(new PageRequest(evalPage, PAGE_SIZE));
     	
@@ -60,8 +72,12 @@ public class ProductController {
     @RequestMapping(path = "/detail/{id}", method = RequestMethod.GET)
     public String productDetail(@PathVariable long id, Model model) {
     	logger.debug("Details for Product " + id);
-    	
-    	Product returnProduct = productService.findById(id);
+
+		if(sCart.getPurchase() != null) {
+			addCartIcon(model, sCart);
+		}
+
+		Product returnProduct = productService.findById(id);
     	if (returnProduct != null) {
     		model.addAttribute("product", returnProduct);
     		ProductPurchase productPurchase = new ProductPurchase();
@@ -83,8 +99,8 @@ public class ProductController {
     	
     	logger.debug("Product Image Request for " + id);
     	logger.info("Using imagePath [" + imagePath + "]");
-    	
-    	Product returnProduct = productService.findById(id);
+
+		Product returnProduct = productService.findById(id);
     	String imageFilePath = null;
     	if (returnProduct != null) {
     		if (!imagePath.endsWith("/")) {
@@ -101,8 +117,13 @@ public class ProductController {
     }
     
     @RequestMapping(path = "/about")
-    public String aboutCartShop() {
-    	logger.warn("Happy Easter! Someone actually clicked on About.");
-    	return("about");
+    public String aboutCartShop(Model model) {
+
+		if(sCart.getPurchase() != null) {
+			addCartIcon(model, sCart);
+		}
+
+		logger.warn("Happy Easter! Someone actually clicked on About.");
+    	return "about";
     }
 }

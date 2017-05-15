@@ -20,7 +20,6 @@ import org.thymeleaf.context.Context;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.xml.transform.Result;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -77,7 +76,6 @@ public class CheckoutController {
 						  BindingResult result, RedirectAttributes redirectAttributes) {
 
 		if (result.hasErrors()){
-			// TODO: SG Add flash message
 			redirectAttributes.addFlashAttribute("flash",
 					new FlashMessage("Invalid coupon code. Must be between 5 and 10 characters.", FAILURE));
 			sCart.setCouponCode(null);

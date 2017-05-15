@@ -54,16 +54,10 @@ public class CartController {
     	logger.debug("Session ID = " + session.getId());
     	
     	Purchase purchase = sCart.getPurchase();
-    	BigDecimal subTotal = new BigDecimal(0);
     	
     	model.addAttribute("purchase", purchase);
     	if (purchase != null) {
-    		for (ProductPurchase pp : purchase.getProductPurchases()) {
-    			logger.debug("cart has " + pp.getQuantity() + " of " + pp.getProduct().getName());
-    			subTotal = subTotal.add(pp.getProduct().getPrice().multiply(new BigDecimal(pp.getQuantity())));
-    		}
-    		
-    		model.addAttribute("subTotal", subTotal);
+			addCartIcon(model, sCart);
     	} else {
     		logger.error("No purchases Found for session ID=" + session.getId());
     		return "redirect:/error";
@@ -229,6 +223,16 @@ public class CartController {
 		flashMap.put("flash", new FlashMessage(ex.getMessage(), FAILURE));
 
     	return "redirect:" + request.getHeader("Referer");
+	}
+
+	public static void addCartIcon(Model model, ShoppingCart cart) {
+		BigDecimal subTotal = new BigDecimal(0);
+
+		for (ProductPurchase pp : cart.getPurchase().getProductPurchases()) {
+			subTotal = subTotal.add(pp.getProduct().getPrice().multiply(new BigDecimal(pp.getQuantity())));
+		}
+		model.addAttribute("cart", cart);
+		model.addAttribute("subTotal", subTotal);
 	}
 
 }
