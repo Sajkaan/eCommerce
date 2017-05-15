@@ -3,6 +3,7 @@ package com.acme.ecommerce.controller;
 import com.acme.ecommerce.domain.Product;
 import com.acme.ecommerce.domain.ProductPurchase;
 import com.acme.ecommerce.domain.ShoppingCart;
+import com.acme.ecommerce.exceptions.ProductNotFoundException;
 import com.acme.ecommerce.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -126,4 +128,12 @@ public class ProductController {
 		logger.warn("Happy Easter! Someone actually clicked on About.");
     	return "about";
     }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+	@ExceptionHandler(ProductNotFoundException.class)
+	public String productNotFound(Model model, Exception ex) {
+    	model.addAttribute("message", ex.getMessage());
+
+    	return "error";
+	}
 }
