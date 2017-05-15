@@ -9,8 +9,8 @@
             <div th:if="${purchase != null and not #lists.isEmpty(purchase.productPurchases)}">
 	            <div th:each="productPurchase,iterStat : ${purchase.productPurchases}" class="cart-item">
 		            <div class="item">
-		                <a th:href="@{/detail/{productId}(productId=${productPurchase.product.id})}"><img class="img-thumb" th:src="@{/product/{productId}/image(productId=${productPurchase.product.id})}"/></a>
-		                <h2><a th:name="@{productName{productId}(productId=${productPurchase.product.id})}" th:href="@{/detail/{productId}(productId=${productPurchase.product.id})}" th:text="${productPurchase.product.name}">Product Title</a></h2>
+		                <a th:href="@{/product/detail/{productId}(productId=${productPurchase.product.id})}"><img class="img-thumb" th:src="@{/product/{productId}/image(productId=${productPurchase.product.id})}"/></a>
+		                <h2><a th:name="@{productName{productId}(productId=${productPurchase.product.id})}" th:href="@{/product/detail/{productId}(productId=${productPurchase.product.id})}" th:text="${productPurchase.product.name}">Product Title</a></h2>
 		                <span th:id="@{productPrice{productId}(productId=${productPurchase.product.id})}" class="price" th:text="${'$' + #numbers.formatDecimal(productPurchase.product.price, 1, 2, 'POINT')}">$199.00</span>
 		                <form th:id="@{/cartRemove{productId}(productId=${productPurchase.product.id})}" action="#" th:action="@{/cart/remove}" method="post">
 		                    <input type="hidden" name="productId" th:value="${productPurchase.product.id}"/>
