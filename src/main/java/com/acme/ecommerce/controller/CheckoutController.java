@@ -74,7 +74,7 @@ public class CheckoutController {
 	@RequestMapping(path="/coupon", method = RequestMethod.POST)
 	String postCouponCode(Model model, @ModelAttribute(value="couponCode")  @Valid CouponCode couponCode,
 						  BindingResult result, RedirectAttributes redirectAttributes) {
-
+		// TODO: SG Flash message should not appear if coupon field has no input
 		if (result.hasErrors()){
 			redirectAttributes.addFlashAttribute("flash",
 					new FlashMessage("Invalid coupon code. Must be between 5 and 10 characters.", FAILURE));
@@ -249,7 +249,9 @@ public class CheckoutController {
     		model.addAttribute("orderNumber", purchase.getOrderNumber());
     		model.addAttribute("shippingAddress", purchase.getShippingAddress());
     		model.addAttribute("billingAddress", purchase.getBillingAddress());
-    		model.addAttribute("creditCard", purchase.getCreditCardNumber());
+    		model.addAttribute("creditCard", purchase
+					.getCreditCardNumber()
+					.replaceAll("\\w(?=\\w{4})", "x"));
     	} else {
     		logger.error("No purchases Found!");
     		return("redirect:/error");
@@ -283,7 +285,9 @@ public class CheckoutController {
 	    		ctx.setVariable("orderNumber", purchase.getOrderNumber());
 	    		ctx.setVariable("shippingAddress", purchase.getShippingAddress());
 	    		ctx.setVariable("billingAddress", purchase.getBillingAddress());
-	    		ctx.setVariable("creditCard", purchase.getCreditCardNumber());
+	    		ctx.setVariable("creditCard", purchase
+						.getCreditCardNumber()
+						.replaceAll("\\w(?=\\w{4})", "x"));
 	    		
 	    		final String htmlContent = this.templateEngine.process("email_confirmation", ctx);
 			
