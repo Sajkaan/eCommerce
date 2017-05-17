@@ -105,7 +105,7 @@ public class CartControllerTest {
 	}
 
 	@Test
-	public void successfulAddToCartFlashMessageTest() throws Exception {
+	public void addToCartFlashMessageTest() throws Exception {
 		Product product = productBuilder();
 
 		when(productService.findById(1L)).thenReturn(product);
@@ -115,6 +115,23 @@ public class CartControllerTest {
 			   .andExpect(status().is3xxRedirection())
 			   .andExpect(redirectedUrl("/product/"))
 			   .andExpect(MockMvcResultMatchers.flash().attributeExists("flash"));
+	}
+
+	@Test
+	public void updateCartFlashMessageTest() throws Exception {
+		Product product = productBuilder();
+
+		when(productService.findById(1L)).thenReturn(product);
+
+		Purchase purchase = purchaseBuilder(product);
+
+		when(sCart.getPurchase()).thenReturn(purchase);
+
+		mockMvc.perform(MockMvcRequestBuilders.post("/cart/update").param("newQuantity", "2").param("productId", "1"))
+				.andDo(print())
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/cart"))
+				.andExpect(MockMvcResultMatchers.flash().attributeExists("flash"));
 	}
 
 	@Test
