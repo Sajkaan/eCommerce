@@ -2,6 +2,9 @@ package com.acme.ecommerce.controller;
 
 import com.acme.ecommerce.Application;
 import com.acme.ecommerce.domain.Product;
+import com.acme.ecommerce.domain.ProductPurchase;
+import com.acme.ecommerce.domain.Purchase;
+import com.acme.ecommerce.domain.ShoppingCart;
 import com.acme.ecommerce.service.ProductService;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +50,8 @@ public class ProductControllerTest {
 	private ProductService productService;
 	@InjectMocks
 	private ProductController productController;
+	@Mock
+	private ShoppingCart sCart;
 
 	private MockMvc mockMvc;
 
@@ -99,6 +104,17 @@ public class ProductControllerTest {
 	}
 
 	@Test
+	public void cartButtonDisplaysWithSubtotal() throws Exception {
+		Product product = productBuilder();
+		Purchase purchase = purchaseBuilder(product);
+
+		when(sCart.getPurchase()).thenReturn(purchase);
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/product/"))
+				.andExpect(model().attributeExists("subTotal"));
+	}
+
+	@Test
 	public void getProductImage() throws Exception {
 		
 		Product product = productBuilder();
@@ -132,5 +148,19 @@ public class ProductControllerTest {
 		product.setFullImageName("imagename");
 		product.setThumbImageName("imagename");
 		return product;
+	}
+
+	private Purchase purchaseBuilder(Product product) {
+		ProductPurchase pp = new ProductPurchase();
+		pp.setProductPurchaseId(1L);
+		pp.setQuantity(1);
+		pp.setProduct(product);
+		List<ProductPurchase> ppList = new ArrayList<ProductPurchase>();
+		ppList.add(pp);
+
+		Purchase purchase = new Purchase();
+		purchase.setId(1L);
+		purchase.setProductPurchases(ppList);
+		return purchase;
 	}
 }

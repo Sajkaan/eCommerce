@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
@@ -27,6 +28,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -99,6 +102,19 @@ public class CartControllerTest {
 				.andDo(print())
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/product/"));
+	}
+
+	@Test
+	public void successfulAddToCartFlashMessageTest() throws Exception {
+		Product product = productBuilder();
+
+		when(productService.findById(1L)).thenReturn(product);
+
+		mockMvc.perform(MockMvcRequestBuilders.post("/cart/add").param("productId", "1").param("quantity", "1"))
+			   .andDo(print())
+			   .andExpect(status().is3xxRedirection())
+			   .andExpect(redirectedUrl("/product/"))
+			   .andExpect(MockMvcResultMatchers.flash().attributeExists("flash"));
 	}
 
 	@Test
@@ -264,6 +280,18 @@ public class CartControllerTest {
 		mockMvc.perform(MockMvcRequestBuilders.post("/cart/empty")).andDo(print())
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/error"));
+	}
+
+	@Test(expected = OrderQuantityExceedsStockException.class)
+	public void exceedingStockQuantityThrowsException() throws Exception {
+		Product product = productBuilder();
+		doAnswer(invocation -> {
+			if(product.getQuantity() < 5) {
+				throw new OrderQuantityExceedsStockException(product);
+			}
+			return null;
+		}).when(productService).checkStock(any(Product.class), any(Integer.class));
+		productService.checkStock(product, 5);
 	}
 
 	private Product productBuilder() {
