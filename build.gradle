@@ -46,6 +46,6 @@ dependencies {
 bootRun {
     // Update path to the directory that contains your
     // eCommerce.properties file
-	jvmArgs = ["-Dproperties.home=/home/sajkaan/IdeaProjects/techdegree-javaweb-ecommerce-master/properties"]
+	jvmArgs = ["-Dproperties.home=/home/sajkaan/IdeaProjects/eCommerce/properties"]
     //jvmArgs = ["-Dproperties.home=/C:/Users/StarLord/IdeaProjects/eCommerce/properties"]
 }

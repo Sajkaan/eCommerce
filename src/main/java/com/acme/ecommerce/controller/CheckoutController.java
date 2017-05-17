@@ -74,17 +74,21 @@ public class CheckoutController {
 	@RequestMapping(path="/coupon", method = RequestMethod.POST)
 	String postCouponCode(Model model, @ModelAttribute(value="couponCode")  @Valid CouponCode couponCode,
 						  BindingResult result, RedirectAttributes redirectAttributes) {
-		// TODO: SG Flash message should not appear if coupon field has no input
-		if (result.hasErrors()){
+		if (!result.hasErrors()) {
+			if (!couponCode.getCode().equals("")) {
+				sCart.setCouponCode(couponCode);
+				redirectAttributes.addFlashAttribute("flash", new FlashMessage("Coupon accepted.", SUCCESS));
+			} else {
+				couponCode.setCode(null);
+				sCart.setCouponCode(couponCode);
+			}
+		} else {
 			redirectAttributes.addFlashAttribute("flash",
 					new FlashMessage("Invalid coupon code. Must be between 5 and 10 characters.", FAILURE));
-			sCart.setCouponCode(null);
+
 			return "redirect:/checkout/coupon";
 		}
-		/*if (!couponCode.getCode().equals("")) {*/
-			sCart.setCouponCode(couponCode);
-			redirectAttributes.addFlashAttribute("flash", new FlashMessage("Coupon accepted.", SUCCESS));
-	/*	}*/
+
 
 		return "redirect:shipping";
 	}
